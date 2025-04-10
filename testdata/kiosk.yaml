@@ -1,0 +1,14 @@
+name: kiosk
+title: Kiosk
+desc: Terminal workspace manager
+homepage: https://github.com/jmelowry/kiosk
+version: main-1744261656
+platforms:
+  - os: darwin
+    arch: arm64
+    url: https://github.com/jmelowry/kiosk/releases/download/main-1744261656/kiosk-main-1744261656-darwin-arm64.tar.gz
+    sha256: 0f6e22cde4f6c13f5bbc81d7e5f3dd5c7cc704852230e84fb0fd170c70fd5a87
+  - os: linux
+    arch: amd64
+    url: https://github.com/jmelowry/kiosk/releases/download/main-1744261656/kiosk-main-1744261656-linux-amd64.tar.gz
+    sha256: 62ee901b2336e6595ddf8587a73515abf48eb7ad76831cfab340901ad7401b3a

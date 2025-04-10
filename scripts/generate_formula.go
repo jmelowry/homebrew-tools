@@ -67,13 +67,13 @@ func processConfig(configPath string) error {
 
 	tmpl, err := template.New("formula").Funcs(template.FuncMap{
 		"title": title,
-	}).ParseFiles("templates/formula.rb.tmpl")
+	}).ParseFiles("../templates/formula.rb.tmpl")
 	if err != nil {
 		return fmt.Errorf("parsing template: %w", err)
 	}
 
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, specMap); err != nil {
+	if err := tmpl.ExecuteTemplate(&buf, "formula.rb.tmpl", specMap); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 
