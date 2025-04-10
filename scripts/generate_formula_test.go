@@ -13,6 +13,11 @@ func TestGenerateFormulaFromYAML(t *testing.T) {
 	inputFile := "../testdata/kiosk.yaml"
 	expectedOutput := filepath.Join("Formula", "kiosk.rb")
 
+	// Verify the input file exists
+	if _, err := os.Stat(inputFile); err != nil {
+		t.Fatalf("input file not found: %s", inputFile)
+	}
+
 	// Clean old output
 	_ = os.RemoveAll(outputDir)
 	_ = os.MkdirAll(outputDir, 0755)
