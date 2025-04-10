@@ -1,0 +1,35 @@
+name: Check Homebrew Formula Syntax
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  check-formulas:
+    runs-on: ubuntu-latest
+    name: Validate Formula Syntax
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1' # or use system ruby
+
+      - name: Check Ruby syntax in Formula files
+        run: |
+          shopt -s nullglob
+          files=(Formula/*.rb)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No formula files to check."
+            exit 0
+          fi
+
+          for file in "${files[@]}"; do
+            echo "Checking $file..."
+            ruby -c "$file"
+          done
