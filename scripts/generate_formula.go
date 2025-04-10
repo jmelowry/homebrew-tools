@@ -31,8 +31,10 @@ func main() {
 	matches, err := filepath.Glob("config/*.yaml")
 	check(err, "finding config files")
 
+	templatePath := "templates/formula.rb.tmpl" // Adjust this path if necessary
+
 	for _, configPath := range matches {
-		err := processConfig(configPath)
+		err := processConfig(configPath, templatePath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error processing %s: %v\n", configPath, err)
 			os.Exit(1)
@@ -40,7 +42,7 @@ func main() {
 	}
 }
 
-func processConfig(configPath string) error {
+func processConfig(configPath string, templatePath string) error {
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
@@ -67,7 +69,7 @@ func processConfig(configPath string) error {
 
 	tmpl, err := template.New("formula").Funcs(template.FuncMap{
 		"title": title,
-	}).ParseFiles(filepath.Join(filepath.Dir(os.Args[0]), "../templates/formula.rb.tmpl"))
+	}).ParseFiles(templatePath)
 	if err != nil {
 		return fmt.Errorf("parsing template: %w", err)
 	}
