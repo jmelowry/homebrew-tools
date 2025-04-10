@@ -1,0 +1,15 @@
+class {{ .Name | title }} < Formula
+  desc "{{ .Desc }}"
+  homepage "{{ .Homepage }}"
+  url "{{ .URL }}"
+  sha256 "{{ .SHA256 }}"
+  version "{{ .Version }}"
+
+  def install
+    bin.install "{{ .Name }}"
+  end
+
+  test do
+    system "#{bin}/{{ .Name }}", "--help"
+  end
+end
