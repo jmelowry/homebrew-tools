@@ -21,9 +21,7 @@ jobs:
           go-version: '1.21'
 
       - name: Generate Formula
-        run: |
-          cd scripts
-          go run generate_formula.go
+        run: go run scripts/generate_formula.go
 
       - name: Check if formula changed
         run: |
