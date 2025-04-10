@@ -11,7 +11,7 @@ import (
 func TestGenerateFormulaFromYAML(t *testing.T) {
 	outputDir := "Formula"
 	inputFile := "../testdata/kiosk.yaml"
-	expectedOutput := filepath.Join("Formula", "kiosk.rb")
+	expectedOutput := filepath.Join(outputDir, "kiosk.rb")
 	templatePath := "../templates/formula.rb.tmpl"
 
 	// Verify the input file exists
@@ -27,6 +27,11 @@ func TestGenerateFormulaFromYAML(t *testing.T) {
 	// Clean old output
 	_ = os.RemoveAll(outputDir)
 	_ = os.MkdirAll(outputDir, 0755)
+
+	// Ensure cleanup after the test
+	defer func() {
+		_ = os.RemoveAll(outputDir)
+	}()
 
 	err := processConfig(inputFile, templatePath)
 	if err != nil {
