@@ -11,13 +11,29 @@ import (
 func TestGenerateFormulaFromYAML(t *testing.T) {
 	outputDir := "Formula"
 	inputFile := "../testdata/kiosk.yaml"
-	expectedOutput := filepath.Join("Formula", "kiosk.rb")
+	expectedOutput := filepath.Join(outputDir, "kiosk.rb")
+	templatePath := "../templates/formula.rb.tmpl"
+
+	// Verify the input file exists
+	if _, err := os.Stat(inputFile); err != nil {
+		t.Fatalf("input file not found: %s", inputFile)
+	}
+
+	// Verify the template file exists
+	if _, err := os.Stat(templatePath); err != nil {
+		t.Fatalf("template file not found: %s", templatePath)
+	}
 
 	// Clean old output
 	_ = os.RemoveAll(outputDir)
 	_ = os.MkdirAll(outputDir, 0755)
 
-	err := processConfig(inputFile)
+	// Ensure cleanup after the test
+	defer func() {
+		_ = os.RemoveAll(outputDir)
+	}()
+
+	err := processConfig(inputFile, templatePath)
 	if err != nil {
 		t.Fatalf("processConfig failed: %v", err)
 	}
