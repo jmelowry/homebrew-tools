@@ -22,7 +22,14 @@ jobs:
 
       - name: Check Ruby syntax in Formula files
         run: |
-          for file in Formula/*.rb; do
+          shopt -s nullglob
+          files=(Formula/*.rb)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No formula files to check."
+            exit 0
+          fi
+
+          for file in "${files[@]}"; do
             echo "Checking $file..."
             ruby -c "$file"
           done
