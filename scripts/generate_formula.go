@@ -67,7 +67,7 @@ func processConfig(configPath string) error {
 
 	tmpl, err := template.New("formula").Funcs(template.FuncMap{
 		"title": title,
-	}).ParseFiles(filepath.Join(filepath.Dir(os.Args[0]), "../templates/formula.rb.tmpl"))
+	}).ParseFiles(filepath.Join("templates", "formula.rb.tmpl"))
 	if err != nil {
 		return fmt.Errorf("parsing template: %w", err)
 	}
