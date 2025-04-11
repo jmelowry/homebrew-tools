@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          token: ${{ secrets.BREWRELEASE }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -34,5 +34,3 @@ jobs:
             git commit -m "Update generated Homebrew formula"
             git push origin main
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
