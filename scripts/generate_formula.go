@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -48,6 +50,25 @@ func fetchLatestVersion(repo string) (string, error) {
 	return release.TagName, nil
 }
 
+func calculateSHA256(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("downloading asset: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to download asset, status: %s", resp.Status)
+	}
+
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, resp.Body); err != nil {
+		return "", fmt.Errorf("calculating sha256: %w", err)
+	}
+
+	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+}
+
 func main() {
 	matches, err := filepath.Glob("config/*.yaml")
 	check(err, "finding config files")
@@ -74,6 +95,7 @@ func processConfig(configPath string, templatePath string) error {
 		return fmt.Errorf("unmarshaling yaml: %w", err)
 	}
 
+	// Fetch the latest version if "latest" is specified
 	if spec.Version == "latest" {
 		latestVersion, err := fetchLatestVersion("jmelowry/kiosk")
 		if err != nil {
@@ -82,8 +104,19 @@ func processConfig(configPath string, templatePath string) error {
 		spec.Version = latestVersion
 	}
 
-	if len(spec.Platforms) == 0 {
-		return fmt.Errorf("no platforms defined")
+	// Fetch URLs and SHA256 for each platform
+	for i, platform := range spec.Platforms {
+		assetName := fmt.Sprintf("kiosk-%s-%s-%s.tar.gz", spec.Version, platform.OS, platform.Arch)
+		assetURL := fmt.Sprintf("https://github.com/jmelowry/kiosk/releases/download/%s/%s", spec.Version, assetName)
+
+		// Download the asset to calculate its SHA256
+		sha256, err := calculateSHA256(assetURL)
+		if err != nil {
+			return fmt.Errorf("calculating sha256 for %s: %w", assetURL, err)
+		}
+
+		spec.Platforms[i].URL = assetURL
+		spec.Platforms[i].SHA256 = sha256
 	}
 
 	specMap := map[string]interface{}{
