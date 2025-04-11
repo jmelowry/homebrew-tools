@@ -3,33 +3,26 @@ class {{ .Title }} < Formula
   homepage "{{ .Homepage }}"
   version "{{ .Version }}"
 
-{{- if .MacBuildFromSource }}
-  if OS.mac?
+  on_macos do
     depends_on "go" => :build
 
     def install
       system "go", "build", *std_go_args(output: bin/"{{ .Name }}")
     end
-  else
+  end
+
+  on_linux do
     {{- range .Platforms }}
-    {{- if eq .OS "linux" }}
+    {{- if and (eq .OS "linux") (eq .Arch "amd64") }}
     url "{{ .URL }}"
     sha256 "{{ .SHA256 }}"
     {{- end }}
     {{- end }}
 
     def install
-      bin.install "{{ .Name }}"
+      bin.install "{{ $.Name }}"
     end
   end
-{{- else }}
-  url "{{ (index .Platforms 0).URL }}"
-  sha256 "{{ (index .Platforms 0).SHA256 }}"
-
-  def install
-    bin.install "{{ .Name }}"
-  end
-{{- end }}
 
   test do
     system "#{bin}/{{ .Name }}", "--help"
