@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,6 +27,25 @@ type FormulaSpec struct {
 	Homepage  string     `yaml:"homepage"`
 	Version   string     `yaml:"version"`
 	Platforms []Platform `yaml:"platforms"`
+}
+
+type Release struct {
+	TagName string `json:"tag_name"`
+}
+
+func fetchLatestVersion(repo string) (string, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var release Release
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return "", err
+	}
+	return release.TagName, nil
 }
 
 func main() {
@@ -51,6 +72,14 @@ func processConfig(configPath string, templatePath string) error {
 	var spec FormulaSpec
 	if err := yaml.Unmarshal(data, &spec); err != nil {
 		return fmt.Errorf("unmarshaling yaml: %w", err)
+	}
+
+	if spec.Version == "latest" {
+		latestVersion, err := fetchLatestVersion("jmelowry/kiosk")
+		if err != nil {
+			return fmt.Errorf("fetching latest version: %w", err)
+		}
+		spec.Version = latestVersion
 	}
 
 	if len(spec.Platforms) == 0 {

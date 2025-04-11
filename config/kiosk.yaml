@@ -1,0 +1,10 @@
+name: kiosk
+title: Kiosk
+desc: Terminal workspace manager
+homepage: https://github.com/jmelowry/kiosk
+version: latest
+platforms:
+  - os: darwin
+    arch: arm64
+  - os: linux
+    arch: amd64
