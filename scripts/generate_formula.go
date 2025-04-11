@@ -108,7 +108,13 @@ func processConfig(configPath string, templatePath string) error {
 		return fmt.Errorf("executing template: %w", err)
 	}
 
-	outputPath := filepath.Join("Formula", spec.Name+".rb")
+	// Ensure the Formula directory exists
+	outputDir := "Formula"
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return fmt.Errorf("creating output directory: %w", err)
+	}
+
+	outputPath := filepath.Join(outputDir, spec.Name+".rb")
 	if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
 		return fmt.Errorf("writing formula: %w", err)
 	}
