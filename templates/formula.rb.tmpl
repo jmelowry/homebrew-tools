@@ -3,6 +3,9 @@ class {{ .Title }} < Formula
   homepage "{{ .Homepage }}"
   version "{{ .Version }}"
 
+  url "{{ .URL }}"
+  sha256 "{{ .SHA256 }}"
+
   depends_on "go" => :build
 
   def install

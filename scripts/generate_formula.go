@@ -109,24 +109,36 @@ func processConfig(configPath string, templatePath string) error {
 		assetName := fmt.Sprintf("kiosk-%s-%s-%s.tar.gz", spec.Version, platform.OS, platform.Arch)
 		assetURL := fmt.Sprintf("https://github.com/jmelowry/kiosk/releases/download/%s/%s", spec.Version, assetName)
 
+		// Debug log for asset URL
+		fmt.Printf("Generated URL for platform %s/%s: %s\n", platform.OS, platform.Arch, assetURL)
+
 		// Download the asset to calculate its SHA256
 		sha256, err := calculateSHA256(assetURL)
 		if err != nil {
 			return fmt.Errorf("calculating sha256 for %s: %w", assetURL, err)
 		}
 
+		// Debug log for SHA256
+		fmt.Printf("Calculated SHA256 for platform %s/%s: %s\n", platform.OS, platform.Arch, sha256)
+
 		spec.Platforms[i].URL = assetURL
 		spec.Platforms[i].SHA256 = sha256
 	}
 
+	// Use the first platform (e.g., macOS) for the formula
+	if len(spec.Platforms) == 0 {
+		return fmt.Errorf("no platforms defined in configuration")
+	}
+	primaryPlatform := spec.Platforms[0]
+
 	specMap := map[string]interface{}{
-		"Name":               spec.Name,
-		"Title":              spec.Title,
-		"Desc":               spec.Desc,
-		"Homepage":           spec.Homepage,
-		"Version":            spec.Version,
-		"Platforms":          spec.Platforms,
-		"MacBuildFromSource": true,
+		"Name":     spec.Name,
+		"Title":    spec.Title,
+		"Desc":     spec.Desc,
+		"Homepage": spec.Homepage,
+		"Version":  spec.Version,
+		"URL":      primaryPlatform.URL,
+		"SHA256":   primaryPlatform.SHA256,
 	}
 
 	tmpl, err := template.New("formula").Funcs(template.FuncMap{
